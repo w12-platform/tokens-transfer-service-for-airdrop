@@ -14,7 +14,8 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/gauss11/choam#readme",
   "dependencies": {
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "truffle": "^5.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
