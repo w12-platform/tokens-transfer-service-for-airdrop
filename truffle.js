@@ -31,8 +31,8 @@ module.exports =
 				return new HDWalletProvider(keys.seed, 'https://mainnet.infura.io/' + keys.infura, keys.key_index)
 			},
 			network_id: 1,
-			gas: 3000000,
-			gasPrice: 20000000000
+			gas: 4200000,
+			gasPrice: 10000000000
 		}
 	}
 };
