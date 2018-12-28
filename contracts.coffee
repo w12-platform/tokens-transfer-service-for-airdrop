@@ -54,39 +54,42 @@ data = [
 
 module.exports = (cb)->
 
-#	try
-#
-#		eth = new Eth web3.currentProvider
-#
-#		wei = (val)->
-#			val = to_fix val.toString(), 18
-#			return Eth.toWei(val, 'ether').toString()
-#
-#	#	sender = await sender.deployed()
-#
-#		sender = await sender.at sender_addr
-#
-#		nonce = await getNonce keys.owner
-#
-#		size = 3
-#
-#		for i in [0...data.length] by size
-#			arr = data[i...i + size]
-#			ids = (val.id for val in arr)
-#			receivers = (val.addr for val in arr)
-#			amounts = ((bn(val.amount).mul(bn(10).pow(bn(18)))).toString() for val in arr)
-#			vestings = (val.vesting for val in arr)
-#
-#			for j in [0..2]
-#				res = await sender.bulkTransfer '0xbf799a2f71d020a4a8c10e7406e2bf970b3d734b', ids, receivers, amounts, vestings, {nonce}
-#	#			res = await sender.bulkTransfer '0x6671c24dd5b8e4ced34033991418e4bc0cca05af', ids, receivers, amounts, vestings, {nonce}
-#				log res
-#				nonce += 1
-#
-#		await delay 1000
-#
-#	catch err
-#		log err
+	try
+
+		eth = new Eth web3.currentProvider
+
+		wei = (val)->
+			val = to_fix val.toString(), 18
+			return Eth.toWei(val, 'ether').toString()
+
+	#	sender = await sender.deployed()
+
+		sender = await sender.at sender_addr
+
+		data = []
+
+		vesting_transfer = sender.VestingTransfer({}, {fromBlock: 6964131, toBlock: 'latest'})
+		vesting_transfer.get (error, logs)=>
+
+
+			for val in logs
+				data.push
+					recipient: val.args._recipient
+					lock: val.args._lock
+					amount: ether(val.args._amount)
+					vesting: val.args._vesting.toString()
+
+			log data
+
+			return
+
+
+
+
+		await delay 1000
+
+	catch err
+		log err
 
 	try
 

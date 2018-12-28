@@ -13,19 +13,23 @@ delay = (ms)->
 
 
 read = (file_name, res_file_name)->
-	res = await fs.readFile './' + file_name
+	res = await fs.readFile file_name
 	res = String res
-	arr = res.split '\r\n'
+	arr = res.split '\n'
 
-
-
-	id = 5000
+	id = 3000
 	res = ''
+	summ = 0
 	for val in arr
 		tmp = val.split '\t'
 		if tmp[0].length is 42
 			res += "#{id}\t#{tmp[0]}\t#{tmp[1]}\n"
 			id += 1
+			summ += parseInt(tmp[1])
+		else
+			log tmp
+
+	log file_name, summ
 
 	await fs.writeFile res_file_name, res
 
@@ -37,7 +41,7 @@ read_vesting = (file_name, res_file_name)->
 
 	time = 1544572800
 
-	id = 1000
+	id = 1500
 	res = ''
 	summ = 0
 	for val in arr
@@ -48,7 +52,7 @@ read_vesting = (file_name, res_file_name)->
 			id += 1
 			summ += parseInt(tmp[2])
 
-	log summ
+	log file_name, summ
 
 
 	await fs.writeFile res_file_name, res
@@ -90,11 +94,50 @@ check = (file_name)->
 #read './data/baunty.txt', './data/baunty.dat'
 #read './data/telegram.txt', './data/telegram.dat'
 
-read_vesting './data/vesting_transfer.txt', './data/vesting_transfer.dat'
+#read './data/2/blog.txt', './data/2/blog.dat'
+#read './data/2/bugs&audit.txt', './data/2/bugs&audit.dat'
+#read './data/2/bugs.txt', './data/2/bugs.dat'
+#read './data/2/proj.txt', './data/2/proj.dat'
+#read './data/2/reddit.txt', './data/2/reddit.dat'
+#read './data/2/ref.txt', './data/2/ref.dat'
+#read './data/2/sig.txt', './data/2/sig.dat'
+#read './data/2/translation.txt', './data/2/translation.dat'
+#read './data/2/youtube.txt', './data/2/youtube.dat'
+
+#read './data/2/icoreview.csv', './data/2/icoreview.dat'
+#read './data/2/managers.csv', './data/2/managers.dat'
+#read './data/2/otherservice.csv', './data/2/otherservice.dat'
+
+
+read './data/5/investors_2.csv', './data/5/investors_2.dat'
+
+#read './data/2/dat.txt', './data/2/dat.dat'
 
 
 
+#read_vesting './data/vesting_transfer.txt', './data/vesting_transfer.dat'
+
+#read_vesting './data/3/managers_vesting_1.csv', './data/3/managers_vesting_1.dat'
+#read_vesting './data/3/managers_vesting_2.csv', './data/3/managers_vesting_2.dat'
 
 
+#bugs&audit.txt 45436
+#blog.txt 218036
+#bugs.txt 3146
+#proj.txt 23232
+#translation.txt 75000
+#youtube.txt 149975
+#reddit.txt 74124
+#ref.txt 319216
+#sig.txt 366749
+#icoreview.csv 110837
+#otherservice.csv 172498
+#managers.csv 1088729
 
+#log 45436 + 218036 + 3146 + 23232 + 75000 + 149975 + 74124 + 319216 + 366749 + 110837 + 172498 + 1088729 - 1280000
+
+
+#managers_vesting_1.csv 1088729
+#managers_vesting_2.csv 1088729
+#2177458
 
