@@ -1,5 +1,5 @@
 # Created by .ignore support plugin (hsz.mobi)
-.idea/
+/.idea/
 /build/
 /data/
 /node_modules/
@@ -10,3 +10,4 @@
 /contracts.js
 /contracts.js.map
 /keys.js
+/start.sh

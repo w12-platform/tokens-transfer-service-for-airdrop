@@ -18,7 +18,7 @@ module.exports =
 		{
 			provider: function()
 			{
-				return new HDWalletProvider(keys.seed, 'https://ropsten.infura.io/' + keys.infura, keys.key_index)
+				return new HDWalletProvider(keys.seed, 'https://ropsten.infura.io/v3/' + keys.infura, keys.key_index)
 			},
 			network_id: 3,
 			gas: 2000000,
@@ -28,11 +28,11 @@ module.exports =
 		{
 			provider: function()
 			{
-				return new HDWalletProvider(keys.seed, 'https://mainnet.infura.io/' + keys.infura, keys.key_index)
+				return new HDWalletProvider(keys.seed, 'https://mainnet.infura.io/v3/' + keys.infura, keys.key_index)
 			},
 			network_id: 1,
 			gas: 4200000,
-			gasPrice: 5000000000
+			gasPrice: 10000000000
 		}
 	}
 };

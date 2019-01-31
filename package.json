@@ -13,7 +13,7 @@
   "author": "Dmitriy Zhivodenko",
   "license": "ISC",
   "homepage": "https://bitbucket.org/gauss11/choam#readme",
-  "dependencies": {},
+ "dependencies": {},
   "devDependencies": {
     "axios": "^0.18.0",
     "babel-core": "^6.26.0",

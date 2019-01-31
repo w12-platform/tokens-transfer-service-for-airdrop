@@ -41,27 +41,51 @@ const getNonce = account => new Promise((resolve, reject) => {
 });
 ```
 
+
+```
+var id_arr = [
+  200244,
+  200245,
+  200246,
+  200247,
+  200248,
+  200249 ];
+var addr_arr = [
+];
+var amount_arr = [
+  '104400000000000000000',
+  '487200000000000000000',
+  '452400000000000000000',
+  '348000000000000000000',
+  '417600000000000000000',
+  '278400000000000000000' ];
+
+```
+
 send = ->
 
 	sender = artifacts.require 'MassSender'
 	sender_addr = '0xcdbB5a2D305f179fcfF384499cDef4D6265B3082'.toLowerCase()
 
 	try
-		res = await fs.readFile './data/5/investors_2.dat'
+		res = await fs.readFile './data/11/baunty.txt'
 		res = String res
 		arr = res.split '\n'
 	catch err
 		log err
 		return
 
-#	data = []
-#	for val in arr
-#		tmp = val.split '\t'
-#		data.push {id: tmp[0], addr: tmp[1], amount: wei(tmp[2]).toString()}
+#	210000
 
-	data = [
-		{id: 3100, addr: '0x246c8e972a0FbDEF6896D97a993F8B54DD2a215C'.toLowerCase(), amount: wei('17815.9')},
-		]
+	id = 101610
+
+	data = []
+	for val in arr
+		tmp = val.split '\t'
+
+		if tmp[1] isnt '0'
+			data.push {id, addr: tmp[0].toLowerCase(), amount: wei(tmp[1]).toString()}
+			id++
 
 #	sender = await sender.deployed()
 
@@ -69,8 +93,7 @@ send = ->
 
 	nonce = await getNonce keys.owner
 
-	size = 2
-
+	size = 50
 
 	for i in [0...data.length] by size
 		arr = data[i...i + size]
@@ -78,12 +101,58 @@ send = ->
 		receivers = (val.addr for val in arr)
 		amounts = (val.amount for val in arr)
 
-		for j in [0..2]
-			res = await sender.bulkTransfer '0xbf799a2f71d020a4a8c10e7406e2bf970b3d734b', ids, receivers, amounts, {nonce}
-			log res
-			nonce += 1
+		log ids
+		log receivers
+		log amounts
 
-	await delay 1000
+		for j in [0..2]
+
+			try
+				res = await sender.bulkTransfer '0xbf799a2f71d020a4a8c10e7406e2bf970b3d734b', ids, receivers, amounts, {nonce}
+				log res
+				nonce += 1
+			catch err
+				log err
+				return
+
+		await delay 1000
+
+	log 'cmpl'
+
+
+send_step = ->
+
+	sender = artifacts.require 'MassSender'
+	sender_addr = '0xcdbB5a2D305f179fcfF384499cDef4D6265B3082'.toLowerCase()
+
+	sender = await sender.at sender_addr
+
+	nonce = await getNonce keys.owner
+
+	for i in [0...id_arr.length]
+		ids = [id_arr[i]]
+		receivers = [addr_arr[i].toLowerCase()]
+		amounts = [amount_arr[i]]
+
+		log ids
+		log receivers
+		log amounts
+
+		for j in [0..1]
+
+			try
+				res = await sender.bulkTransfer '0xbf799a2f71d020a4a8c10e7406e2bf970b3d734b', ids, receivers, amounts, {nonce}
+				log res
+				nonce += 1
+			catch err
+				log err
+				return
+
+
+		await delay 1000
+
+	log 'cmpl'
+
 
 
 vesting_send = ->
@@ -105,15 +174,7 @@ vesting_send = ->
 		tmp = val.split '\t'
 		data.push {id: tmp[0], addr: tmp[2], amount: wei(tmp[3]).toString(), vesting: tmp[4]}
 
-	data = [
-		{id: 1801, addr: '0x246c8e972a0FbDEF6896D97a993F8B54DD2a215C'.toLowerCase(), amount: wei('20469.99999'), vesting: '1546112999'},
-		]
-
 ##	sender = await sender.deployed()
-
-#	0xb901bdbcfe5470b854c4434b987e29ea1290dd5a
-#	0x1b68e9b0dc65d5822e078667184cc0fa64b4931f
-#	0xc6f695202eb1190f53a6e2b32351e1f2ef4ab78e
 
 	sender = await sender.at sender_addr
 
@@ -225,14 +286,8 @@ logs2 = ()->
 	return
 
 
-#module.exports = (cb)->
-#logs './data/all_log.csv'
-
-#	vesting_send()
-
-#logs './data/all_log.csv'
-
-logs2()
+module.exports = (cb)->
+	send()
 
 
 
