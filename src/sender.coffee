@@ -77,7 +77,7 @@ send = ->
 
 #	210000
 
-	id = 101610
+	id = 210000
 
 	data = []
 	for val in arr
@@ -286,8 +286,46 @@ logs2 = ()->
 	return
 
 
-module.exports = (cb)->
-	send()
+logs3 = (res_file_name)->
+
+	addr = '0x8839a76591F98759B238A0d9D7a41Ab6f5129AC9'.toLowerCase()
+	block = 6841198
+
+#	max = 6975700
+
+#	res = 'recipient;amount\r\n'
+
+	data = await axios.get "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=#{block}&toBlock=#{7140359}&address=#{addr}&apikey=#{keys.APIKEY}"
+
+
+#	log data.data.result
+
+	res2 = 0
+
+	for val in data.data.result
+		if val.topics.length is 3
+			res = await axios.get "https://api.etherscan.io/api?module=proxy&action=eth_getTransactionByHash&txHash=#{val.transactionHash}&apikey=#{keys.APIKEY}"
+			value = parseFloat(ether(abi.decodeParams(['uint'], res.data.result.value)[0]))
+			kvt = ether((abi.decodeParams(['uint'], val.data)[0]).mul(bn 10000000000)).toString()
+			log val.transactionHash + '\t' + value + '\t' + kvt
+			res2 += value
+		await delay 500
+
+	log res2
+
+
+#
+#	await fs.writeFile res_file_name, res
+
+	return
+
+
+#module.exports = (cb)->
+#	send()
+
+logs3()
+
+
 
 
 
