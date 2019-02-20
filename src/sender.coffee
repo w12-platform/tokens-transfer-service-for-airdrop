@@ -68,25 +68,19 @@ send = ->
 	sender_addr = '0xcdbB5a2D305f179fcfF384499cDef4D6265B3082'.toLowerCase()
 
 	try
-		res = await fs.readFile './data/11/baunty.txt'
+		res = await fs.readFile './data/11/investors_NO_lockup_20190220.txt'
 		res = String res
 		arr = res.split '\n'
 	catch err
 		log err
 		return
 
-#	210000
-
-	id = 210000
 
 	data = []
 	for val in arr
 		tmp = val.split '\t'
 
-		if tmp[1] isnt '0'
-			data.push {id, addr: tmp[0].toLowerCase(), amount: wei(tmp[1]).toString()}
-			id++
-
+		data.push {id: tmp[0], addr: tmp[1].toLowerCase(), amount: wei(tmp[2]).toString()}
 #	sender = await sender.deployed()
 
 	sender = await sender.at sender_addr
@@ -156,13 +150,12 @@ send_step = ->
 
 
 vesting_send = ->
-
 	sender = artifacts.require 'MassVestingSender'
 
 	sender_addr = '0xCBC66115e9d8655709c3408D0e320410Aef1161A'.toLowerCase()
 
 	try
-		res = await fs.readFile './data/7/vesting.dat'
+		res = await fs.readFile './data/11/investors_lockup_20190220.txt'
 		res = String res
 		arr = res.split '\n'
 	catch err
@@ -172,7 +165,7 @@ vesting_send = ->
 	data = []
 	for val in arr
 		tmp = val.split '\t'
-		data.push {id: tmp[0], addr: tmp[2], amount: wei(tmp[3]).toString(), vesting: tmp[4]}
+		data.push {id: tmp[0], addr: tmp[1], amount: wei(tmp[2]).toString(), vesting: tmp[3]}
 
 ##	sender = await sender.deployed()
 
@@ -199,6 +192,8 @@ vesting_send = ->
 				log err
 			nonce += 1
 
+	log 'cmpl'
+
 
 vesting_logs = (res_file_name)->
 	try
@@ -212,9 +207,12 @@ vesting_logs = (res_file_name)->
 		sender = await sender.at sender_addr
 
 
+
 		data = []
 
-		vesting_transfer = sender.VestingTransfer({}, {fromBlock: 0, toBlock: 'latest'})
+		vesting_transfer = sender.VestingTransfer({}, {fromBlock: 7245554, toBlock: 'latest'})
+
+
 		vesting_transfer.get (error, logs)=>
 
 			for val in logs
@@ -239,6 +237,14 @@ vesting_logs = (res_file_name)->
 			log 'cmpl'
 
 			return
+
+	catch err
+		log err
+
+	return
+
+
+
 
 
 logs = (res_file_name)->
@@ -320,10 +326,39 @@ logs3 = (res_file_name)->
 	return
 
 
-#module.exports = (cb)->
-#	send()
+logs5 = (res_file_name)->
 
-logs3()
+	addr = '0xCBC66115e9d8655709c3408D0e320410Aef1161A'.toLowerCase()
+	block = 7245554
+	max = 7245951
+
+	res = 'recipient;lock;amount;vesting\r\n'
+
+	while block < max
+
+		data = await axios.get "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=#{block}&toBlock=#{block + 10}&address=#{addr}&apikey=#{keys.APIKEY}"
+
+		for val in data.data.result
+			amnt = abi.decodeParams(['uint'], val.data)[0].toString()
+			vesting = abi.decodeParams(['uint'], val.topics[3])[0].toString()
+			res += "0x#{val.topics[1][26..]};0x#{val.topics[2][26..]};#{amnt};#{vesting}\r\n"
+
+		log block, data.statusText
+
+		block = block + 11
+
+		await delay 1000
+
+	await fs.writeFile res_file_name, res
+
+	return
+
+
+#module.exports = (cb)->
+#	try
+#		vesting_send()
+#	catch err
+#		log err
 
 
 
