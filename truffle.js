@@ -32,7 +32,7 @@ module.exports =
 			},
 			network_id: 1,
 			gas: 4200000,
-			gasPrice: 15000000000
+			gasPrice: 5000000000
 		}
 	}
 };

@@ -1,4 +1,4 @@
-var MassSender = artifacts.require("MassSender");
+var MassSender = artifacts.require("MassSenderDNA");
 
 var keys = require('../keys');
 

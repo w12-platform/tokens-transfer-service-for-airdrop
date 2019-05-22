@@ -5,7 +5,9 @@ keys = require '../keys.js'
 ADDR = 'http://api.etherscan.io/api'
 
 
-log = console.log
+log = (val...)->
+	console.log val...
+
 
 delay = (ms)->
 	return new Promise (resolve, reject)=>
@@ -109,7 +111,7 @@ read2 = (file_name, res_file_name)->
 	res = String res
 	arr = res.split '\n'
 
-	id = 355000
+	id = 425000
 	res = ''
 
 	for val in arr
@@ -130,9 +132,10 @@ read_vesting2 = (file_name, res_file_name)->
 	res = String res
 	arr = res.split '\n'
 
-	time = 1549584000
+	time = 1551398400
 
-	id = 350000
+
+	id = 426000
 	res = ''
 	summ = 0
 	for val in arr
@@ -144,15 +147,48 @@ read_vesting2 = (file_name, res_file_name)->
 			vesting_time = time + parseInt(tmp[3]) * 30 * 24 * 60 * 60
 			res += "#{id}\t#{tmp[1]}\t#{tmp[2]}\t#{vesting_time}\n"
 			id += 1
+			summ += parseFloat tmp[2]
 
-	log file_name
+	log file_name, summ
 
 
 	await fs.writeFile res_file_name, res
 
 
+read_dups = (file_name)->
+	res = await fs.readFile file_name
+	res = String res
+	arr = res.split '\n'
+
+	cnt = 0
+
+	addrs = {}
+
+	for val in arr
+		tmp = val.split '\t'
+		addrs[tmp[0].toLowerCase()] = 1
 
 
-read_vesting2 './data/11/investors_lockup_20190220.csv', './data/11/investors_lockup_20190220.txt'
-read2 './data/11/investors_NO_lockup_20190220.csv', './data/11/investors_NO_lockup_20190220.txt'
+
+	for k, v of addrs
+		log k
+		cnt++
+
+	log cnt
+
+
+#read_vesting2 './data/11/investors_lockup_20190220.csv', './data/11/investors_lockup_20190220.txt'
+#read2 './data/11/investors_NO_lockup_20190220.csv', './data/11/investors_NO_lockup_20190220.txt'
+
+#read2 './data/11/investors_NO_lockup_20190220.csv', './data/11/investors_NO_lockup_20190220.txt'
+
+#read_vesting2 './data/15/w12_investors_LOCKUP.csv', './data/15/investors_lockup.txt'
+
+#read_vesting2 './data/15/w12_investors_LOCKUP.csv', './data/15/w12_investors_lockup.txt'
+
+#read_dups './data/15/singh.txt'
+
+#read2 './data/17/bounty.csv', './data/17/bounty.txt'
+read_vesting2 './data/17/bounty_lockup.csv', './data/17/bounty_lockup.txt'
+
 

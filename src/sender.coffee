@@ -9,14 +9,16 @@ Eth = require 'ethjs'
 abi = require 'ethjs-abi'
 
 
-log = console.log
+log = (val...)->
+	console.log val...
+
 
 ether = (val)->
 	Eth.fromWei val, 'ether'
 
 
-wei = (val)->
-	Eth.toWei val, 'ether'
+weistr = (val, decimals)->
+	if decimals is undefined then Eth.toWei(val, 'ether').toString() else Eth.toWei(val, 'ether').toString()[...-10]
 
 
 bn = (val)->
@@ -68,19 +70,104 @@ send = ->
 	sender_addr = '0xcdbB5a2D305f179fcfF384499cDef4D6265B3082'.toLowerCase()
 
 	try
-		res = await fs.readFile './data/11/investors_NO_lockup_20190220.txt'
+		res = await fs.readFile './data/19/usual.txt'
 		res = String res
 		arr = res.split '\n'
 	catch err
 		log err
 		return
 
+	data = []
+
+	try
+
+		id = 435000
+		for val in arr
+			tmp = val.split '\t'
+			data.push {id, addr: tmp[0].toLowerCase(), amount: weistr(tmp[1])}
+	#		data.push {id, addr: tmp[0].toLowerCase(), amount: weistr(tmp[1], 8)}
+			id++
+
+	catch err
+		log err
+
+	try
+#	sender = await sender.deployed()
+
+	sender = await sender.at sender_addr
+
+	nonce = await getNonce keys.owner
+
+	size = 50
+
+	for i in [0...data.length] by size
+		arr = data[i...i + size]
+		ids = (val.id for val in arr)
+		receivers = (val.addr for val in arr)
+		amounts = (val.amount for val in arr)
+
+		log ids
+		log receivers
+		log amounts
+
+		for j in [0..2]
+			try
+				res = await sender.bulkTransfer '0x5fa34ce3d7d05e858b50bb38afa91c8b1a045688', ids, receivers, amounts, {nonce}
+				log res
+				nonce += 1
+			catch err
+				log err
+				return
+
+		await delay 1000
+
+	log 'cmpl'
+
+
+return_tokens = ->
+
+	sender = artifacts.require 'MassSender'
+	sender_addr = '0xCBC66115e9d8655709c3408D0e320410Aef1161A'.toLowerCase()
+
+#	sender = await sender.deployed()
+
+	sender = await sender.at sender_addr
+
+	nonce = await getNonce keys.owner
+
+	try
+		res = await sender.r '0xbf799a2f71d020a4a8c10e7406e2bf970b3d734b', {nonce}
+		log res
+	catch err
+		log err
+		return
+
+	log 'cmpl'
+
+
+
+sendDNA = ->
+
+	sender = artifacts.require 'MassSenderDNA'
+	sender_addr = '0x55fd33004d53697756CeB54920C4b7F8A3a1177C'.toLowerCase()
+
+	try
+		res = await fs.readFile './data/15/dna_32.txt'
+		res = String res
+		arr = res.split '\n'
+	catch err
+		log err
+		return
 
 	data = []
+
+	id = 422003
 	for val in arr
 		tmp = val.split '\t'
+		data.push {id, addr: tmp[0].toLowerCase(), amount: weistr(tmp[1])}
+#		data.push {id, addr: tmp[0].toLowerCase(), amount: weistr(tmp[1], 8)}
+		id++
 
-		data.push {id: tmp[0], addr: tmp[1].toLowerCase(), amount: wei(tmp[2]).toString()}
 #	sender = await sender.deployed()
 
 	sender = await sender.at sender_addr
@@ -102,7 +189,7 @@ send = ->
 		for j in [0..2]
 
 			try
-				res = await sender.bulkTransfer '0xbf799a2f71d020a4a8c10e7406e2bf970b3d734b', ids, receivers, amounts, {nonce}
+				res = await sender.bulkTransfer '0x82b0E50478eeaFde392D45D1259Ed1071B6fDa81', ids, receivers, amounts, {nonce}
 				log res
 				nonce += 1
 			catch err
@@ -155,7 +242,7 @@ vesting_send = ->
 	sender_addr = '0xCBC66115e9d8655709c3408D0e320410Aef1161A'.toLowerCase()
 
 	try
-		res = await fs.readFile './data/11/investors_lockup_20190220.txt'
+		res = await fs.readFile './data/27/vesting.txt'
 		res = String res
 		arr = res.split '\n'
 	catch err
@@ -163,11 +250,20 @@ vesting_send = ->
 		return
 
 	data = []
-	for val in arr
-		tmp = val.split '\t'
-		data.push {id: tmp[0], addr: tmp[1], amount: wei(tmp[2]).toString(), vesting: tmp[3]}
 
-##	sender = await sender.deployed()
+	try
+		for val in arr
+			tmp = val.split '\t'
+			data.push {id: tmp[0], addr: tmp[1], amount: weistr(tmp[2]), vesting: tmp[3]}
+
+	catch err
+		log err
+
+	log data
+
+#	1586908800
+
+#	sender = await sender.deployed()
 
 	sender = await sender.at sender_addr
 
@@ -328,9 +424,9 @@ logs3 = (res_file_name)->
 
 logs5 = (res_file_name)->
 
-	addr = '0xCBC66115e9d8655709c3408D0e320410Aef1161A'.toLowerCase()
-	block = 7245554
-	max = 7245951
+	addr = '0xbf799a2f71d020a4a8c10e7406e2bf970b3d734b'.toLowerCase()
+	block = 7617489
+	max = 7617492
 
 	res = 'recipient;lock;amount;vesting\r\n'
 
@@ -339,17 +435,60 @@ logs5 = (res_file_name)->
 		data = await axios.get "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=#{block}&toBlock=#{block + 10}&address=#{addr}&apikey=#{keys.APIKEY}"
 
 		for val in data.data.result
+			log val
+#			return
 			amnt = abi.decodeParams(['uint'], val.data)[0].toString()
-			vesting = abi.decodeParams(['uint'], val.topics[3])[0].toString()
+			vesting = '1568160000'
 			res += "0x#{val.topics[1][26..]};0x#{val.topics[2][26..]};#{amnt};#{vesting}\r\n"
 
-		log block, data.statusText
+		log block, data.status
 
-		block = block + 11
+		block = block + 1
 
 		await delay 1000
 
 	await fs.writeFile res_file_name, res
+
+	return
+
+
+logs55 = (res_file_name)->
+
+	addr = '0xbf799a2f71d020a4a8c10e7406e2bf970b3d734b'.toLowerCase()
+	block = 7617484
+#	block = 6065267
+
+	max = 7617492
+
+#	res = 'recipient;amount\r\n'
+
+	date = ''
+
+	while block < max
+
+		data = await axios.get "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=#{block}&toBlock=#{block + 1000}&address=#{addr}&apikey=#{keys.APIKEY}"
+
+		log data
+
+		for val in data.data.result
+			kvt = ether(abi.decodeParams(['uint'], val.data)[0]).toString()
+			if data.data.result.length > 3
+#				log val.transactionHash + '\t' + kvt + new
+				tmp = (new Date(parseInt(val.timeStamp, 16) * 1000)).toISOString()[...10]
+				if tmp isnt date
+					log tmp
+					date = tmp
+
+				continue
+
+		await delay 100
+
+		block = block + 11
+
+
+
+#
+#	await fs.writeFile res_file_name, res
 
 	return
 
@@ -359,6 +498,16 @@ logs5 = (res_file_name)->
 #		vesting_send()
 #	catch err
 #		log err
+
+logs5 './data/27/logs.csv'
+
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 contract ERC20Basic
 {
@@ -61,15 +61,15 @@ contract Ownable
 
 }
 
-contract MassSender is Ownable
+contract MassSenderDNA is Ownable
 {
 	mapping(uint32 => bool) processedTransactions;
 
 	function bulkTransfer(
 		ERC20 token,
-		uint32[] payment_ids,
-		address[] receivers,
-		uint256[] transfers) external
+		uint32[] calldata payment_ids,
+		address[] calldata receivers,
+		uint256[] calldata transfers) external
 	{
 		require(payment_ids.length == receivers.length);
 		require(payment_ids.length == transfers.length);
@@ -78,7 +78,7 @@ contract MassSender is Ownable
 		{
 			if (!processedTransactions[payment_ids[i]])
 			{
-				require(token.transfer(receivers[i], transfers[i]));
+				token.transfer(receivers[i], transfers[i]);
 
 				processedTransactions[payment_ids[i]] = true;
 			}
